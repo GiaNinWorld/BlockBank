@@ -1,58 +1,170 @@
 import React, { useContext, useState } from "react";
-import { TouchableOpacity, TextInput, KeyboardAvoidingView, Modal, Pressable } from "react-native";
-import styled from 'styled-components/native';
-import { StatusBar } from 'expo-status-bar';
-import { TextInputMask } from 'react-native-masked-text';
+import { Alert, Modal, Pressable, ScrollView, TouchableOpacity } from "react-native";
+import styled from "styled-components/native";
+import { StatusBar } from "expo-status-bar";
+import { MaterialIcons } from "@expo/vector-icons";
+import { TextInputMask } from "react-native-masked-text";
 
-import Text from '../components/Text';
+import Text from "../components/Text";
 import { FirebaseContext } from "../../FirebaseContext";
-import { UserContext } from './../../UseContext';
-
-const exampleImages = [
-    require("../../assets/profile.png"),
-    require("../../assets/profileOne.png"),
-    require("../../assets/profileTwo.png"),
-];
+import { UserContext } from "../../UseContext";
+import {
+    getProfilePhotoKey,
+    getProfilePhotoSource,
+    PROFILE_PHOTOS,
+} from "../utils/profilePhotos";
 
 export default function ProfileScreen() {
     const [user, setUser] = useContext(UserContext);
     const firebase = useContext(FirebaseContext);
-    const [profilePhoto, setProfilePhoto] = useState(user.profilePhotoUrl);
     const [modalVisible, setModalVisible] = useState(false);
-    const [cpf, setCpf] = useState(user.cpf ? user.cpf : '12345678922');
-    const [nrConta, setNrConta] = useState(user.nrConta ? user.nrConta : '123456789');
-    const [nacionalidade, setNacionalidade] = useState(user.nacionalidade ? user.nacionalidade : 'Brasileiro');
-    const [sexo, setSexo] = useState(user.sexo ? user.sexo : 'N/A');
-    const [endereco, setEndereco] = useState(user.endereco ? user.endereco : 'Criciúma');
-    const [username, setUsername] = useState(user.username)
-    const [saldo, setSaldo] = useState(user.saldo)
+    const [saving, setSaving] = useState(false);
+    const [profilePhotoKey, setProfilePhotoKey] = useState(getProfilePhotoKey(user.profilePhotoUrl));
+    const [form, setForm] = useState({
+        username: user.username ?? "",
+        cpf: user.cpf ?? "",
+        nrConta: user.nrConta ?? "",
+        nacionalidade: user.nacionalidade ?? "",
+        sexo: user.sexo ?? "",
+        endereco: user.endereco ?? "",
+    });
 
-    let imageUrl;
-    switch (user.profilePhotoUrl) {
-        case 19:
-            imageUrl = require("../../assets/profile.png");
-            break;
-        case 20:
-            imageUrl = require("../../assets/profileOne.png");
-            break;
-        case 21:
-            imageUrl = require("../../assets/profileTwo.png");
-            break;
-        default:
-            imageUrl = "";
-    }
-
-    const addProfilePhoto = () => {
-        setModalVisible(true);
+    const updateField = (field, value) => {
+        setForm((current) => ({
+            ...current,
+            [field]: value,
+        }));
     };
 
-    const pickImage = (image) => {
-        setProfilePhoto(image);
+    const pickImage = (photoKey) => {
+        setProfilePhotoKey(photoKey);
         setModalVisible(false);
     };
 
-    const renderImageSelection = () => {
-        return (
+    const save = async () => {
+        const currentUser = firebase.getCurrentUser();
+        if (!currentUser) {
+            Alert.alert("Perfil", "Usuario nao autenticado.");
+            return;
+        }
+
+        setSaving(true);
+
+        try {
+            await firebase.updateProfile(
+                currentUser.uid,
+                user.email,
+                user.password,
+                form.cpf,
+                form.username,
+                form.nrConta,
+                form.nacionalidade,
+                form.sexo,
+                form.endereco,
+                profilePhotoKey,
+                user.saldo ?? 0
+            );
+
+            const userInfo = await firebase.getUserInfo(currentUser.uid);
+
+            setUser({
+                ...user,
+                ...userInfo,
+                uid: currentUser.uid,
+                profilePhotoUrl: userInfo.profilePhotoUrl ?? profilePhotoKey,
+            });
+
+            Alert.alert("Perfil", "Dados atualizados.");
+        } catch (error) {
+            console.log("Error @update: ", error);
+            Alert.alert("Erro ao salvar", error.message);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <Container>
+            <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                <Header>
+                    <Text heavy title color="#FF6962">
+                        Perfil
+                    </Text>
+                    <Text color="#8e93a1">{user.email}</Text>
+                </Header>
+
+                <PhotoButton onPress={() => setModalVisible(true)}>
+                    <ProfilePhoto source={getProfilePhotoSource(profilePhotoKey)} />
+                    <PhotoEditBadge>
+                        <MaterialIcons name="edit" size={16} color="#ffffff" />
+                    </PhotoEditBadge>
+                </PhotoButton>
+
+                <FormSection>
+                    <SectionTitle>Dados pessoais</SectionTitle>
+                    <FieldLabel>Nome completo</FieldLabel>
+                    <FieldInput
+                        value={form.username}
+                        onChangeText={(value) => updateField("username", value)}
+                        autoCapitalize="words"
+                    />
+
+                    <FieldLabel>CPF</FieldLabel>
+                    <MaskFieldInput
+                        type="cpf"
+                        value={form.cpf}
+                        onChangeText={(value) => updateField("cpf", value)}
+                        keyboardType="number-pad"
+                    />
+
+                    <FieldLabel>Telefone</FieldLabel>
+                    <MaskFieldInput
+                        type="cel-phone"
+                        value={form.nrConta}
+                        options={{
+                            maskType: "BRL",
+                            withDDD: true,
+                            dddMask: "(99) ",
+                        }}
+                        onChangeText={(value) => updateField("nrConta", value)}
+                        keyboardType="phone-pad"
+                    />
+                </FormSection>
+
+                <FormSection>
+                    <SectionTitle>Endereco e documento</SectionTitle>
+                    <FieldLabel>Nacionalidade</FieldLabel>
+                    <FieldInput
+                        value={form.nacionalidade}
+                        onChangeText={(value) => updateField("nacionalidade", value)}
+                        autoCapitalize="words"
+                    />
+
+                    <FieldLabel>Sexo</FieldLabel>
+                    <FieldInput
+                        value={form.sexo}
+                        onChangeText={(value) => updateField("sexo", value)}
+                    />
+
+                    <FieldLabel>Endereco</FieldLabel>
+                    <FieldInput
+                        value={form.endereco}
+                        onChangeText={(value) => updateField("endereco", value)}
+                        autoCapitalize="sentences"
+                    />
+                </FormSection>
+
+                <SaveButton disabled={saving} onPress={save}>
+                    {saving ? (
+                        <Loading />
+                    ) : (
+                        <Text bold center color="#ffffff">
+                            Salvar
+                        </Text>
+                    )}
+                </SaveButton>
+            </ScrollView>
+
             <Modal
                 visible={modalVisible}
                 transparent
@@ -60,172 +172,17 @@ export default function ProfileScreen() {
                 onRequestClose={() => setModalVisible(false)}
             >
                 <Pressable style={{ flex: 1 }} onPress={() => setModalVisible(false)}>
-                    <Pressable style={{ flex: 1 }} onPress={() => {}}>
-                        <ImageSelectionContainer>
-                            {exampleImages.map((image, index) => (
-                                <TouchableOpacity key={index} onPress={() => pickImage(image)}>
-                                    <ImageItem source={image} />
-                                </TouchableOpacity>
-                            ))}
-                        </ImageSelectionContainer>
-                    </Pressable>
+                    <PhotoPickerPanel>
+                        {PROFILE_PHOTOS.map((photo) => (
+                            <PhotoOption key={photo.key} onPress={() => pickImage(photo.key)}>
+                                <PhotoOptionImage source={photo.source} />
+                            </PhotoOption>
+                        ))}
+                    </PhotoPickerPanel>
                 </Pressable>
             </Modal>
-        );
-    };
 
-    const infoPerson = [
-        {
-            id: "1",
-            username: user.username,
-            cpf: user.cpf ? cpf : cpf,
-            nrConta: user.nrConta ? nrConta : nrConta,
-        },
-    ];
-    const infoPersonOne = [
-        {
-            id: "2",
-            nacionalidade: user.nacionalidade ? nacionalidade : nacionalidade,
-            sexo: user.sexo ? sexo : sexo,
-            endereco: user.endereco ? endereco : endereco,
-        },
-    ]
-
-    const save = async () => {
-        try {
-            const uid = firebase.getCurrentUser().uid;
-
-            await firebase.updateProfile(uid, user.email, user.password, cpf, username, nrConta, nacionalidade, sexo, endereco, profilePhoto, saldo);
-
-            const userInfo = await firebase.getUserInfo(uid);
-
-            setUser({
-                username: userInfo.username,
-                email: userInfo.email,
-                uid,
-                password: userInfo.password,
-                cpf: userInfo.cpf,
-                nrConta: userInfo.nrConta,
-                nacionalidade: userInfo.nacionalidade,
-                sexo: userInfo.sexo,
-                endereco: userInfo.endereco,
-                profilePhotoUrl: userInfo.profilePhotoUrl,
-                saldo: userInfo.saldo,
-            })
-        } catch (error) {
-            console.log('Error @update: ', error)
-        }
-    }
-
-    const renderCard = ({ item }) => (
-        <CardContainer>
-            <CardInfo>
-                <CardDetails1>
-                    <Text medium heavy margin="1.6%">Nome Completo</Text>
-                    <Text medium heavy margin="1.6%">Cpf</Text>
-                    <Text medium heavy margin="1.6%">Telefone</Text>
-                </CardDetails1>
-                <CardDetails>
-                    <TextInput 
-                        color={"#ffffff"}
-                    >
-                        <Text mid bold>
-                            {item.username}
-                        </Text>
-                    </TextInput>
-                    <MaskTextInput
-                        type={'cpf'}
-                        value={cpf}
-                        onChangeText={(text) => {
-                            setCpf(text)
-                        }}
-                    />
-                    <MaskTextInput
-                        type={'cel-phone'}
-                        value={nrConta}
-                        options={{
-                          maskType: 'BRL',
-                          withDDD: true,
-                          dddMask: '(99) '
-                        }}
-                        onChangeText={(text) => {
-                            setNrConta(text)
-                        }}
-                    />
-                </CardDetails>
-            </CardInfo>
-            <CardActions>
-                <Update onPress={save}>
-                    <Text heavy>Save</Text>
-                </Update>
-            </CardActions>
-        </CardContainer>
-    )
-    const renderCard1 = ({ item }) => (
-        <CardContainer>
-            <CardInfo>
-                <CardDetails1>
-                    <Text medium heavy margin="1.6%">Nacionalidade</Text>
-                    <Text medium heavy margin="1.6%">Sexo</Text>
-                    <Text medium heavy margin="1.6%">Endereço</Text>
-                </CardDetails1>
-                <CardDetails>
-                    <TextInput
-                        color={"#ffffff"}
-                    >
-                        <Text mid bold>
-                            {item.nacionalidade}
-                        </Text>
-                    </TextInput>
-                    <TextInput
-                        color={"#ffffff"}
-                    >
-                        <Text mid bold>
-                            {item.sexo}
-                        </Text>
-                    </TextInput>
-                    <TextInput
-                        color={"#ffffff"}
-                    >
-                        <Text mid bold>
-                            {item.endereco}
-                        </Text>
-                    </TextInput>
-                </CardDetails>
-            </CardInfo>
-            <CardActions>
-                <Update onPress={save}>
-                    <Text heavy>Save</Text>
-                </Update>
-            </CardActions>
-        </CardContainer>
-    )
-    return (
-        <Container>
-            <KeyboardAvoidingView behavior="position" >
-                <Text center heavy title color="#FF6962" margin="16%">
-                    Block Bank
-                </Text>
-
-                <ProfilePhotoContainer onPress={addProfilePhoto}>
-                    {profilePhoto ? (
-                        <ProfilePhoto source={profilePhoto} style={{ aspectRatio: 1 }} />
-                    ) : (
-                        <ProfilePhoto source={imageUrl} style={{ aspectRatio: 1 }} />
-                    )}
-                </ProfilePhotoContainer>
-
-                {renderImageSelection()}
-
-                <Text center title margin="4%">
-                    {user.username}
-                </Text>
-
-                <Cards data={infoPerson} renderItem={renderCard} />
-                <Cards data={infoPersonOne} renderItem={renderCard1} />
-
-                <StatusBar style='light' />
-            </KeyboardAvoidingView>
+            <StatusBar style="light" />
         </Container>
     );
 }
@@ -235,79 +192,105 @@ const Container = styled.SafeAreaView`
     background-color: #1e1e1e;
 `;
 
-const Cards = styled.FlatList`
-    padding:  0 8px;
-    margin-top: 2px;
+const Header = styled.View`
+    padding: 48px 24px 16px;
 `;
 
-const ProfilePhotoContainer = styled.TouchableOpacity`
-  background-color: #1e1e1e;
-  width: 150px;
-  height: 150px;
-  border-radius: 40px;
-  align-self: center;
-  margin-top: 16px;
-  overflow: hidden;
+const PhotoButton = styled.TouchableOpacity`
+    width: 132px;
+    height: 132px;
+    align-self: center;
+    margin: 8px 0 24px;
 `;
 
 const ProfilePhoto = styled.Image`
-  flex: 1;
+    width: 132px;
+    height: 132px;
+    border-radius: 66px;
+    background-color: #2c2c2c;
 `;
 
-const ImageSelectionContainer = styled.View`
-  flex: 1;
-  background-color: #1e1e1e;
-  padding: 26px;
-  align-items: center;
-  justify-content: center;
+const PhotoEditBadge = styled.View`
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 34px;
+    height: 34px;
+    border-radius: 17px;
+    background-color: #ff6962;
+    align-items: center;
+    justify-content: center;
+    border-width: 2px;
+    border-color: #1e1e1e;
 `;
 
-const ImageItem = styled.Image`
-  width: 200px;
-  height: 200px;
-  margin-right: 8px;
-  margin-bottom: 10px;
-`;
-
-const CardContainer = styled.View`
-    background-color: #292929;
-    margin-bottom: 16px;
+const FormSection = styled.View`
+    margin: 0 16px 16px;
     padding: 16px;
+    background-color: #292929;
     border-radius: 8px;
 `;
 
-const CardInfo = styled.View`
-    flex-direction: row;
-    border-bottom-width: 1px;
-    border-bottom-color: #393939;
-    padding-bottom: 12px;
-    margin-bottom: 12px;
-`;
-
-const CardDetails = styled.View`
-    flex: 1;
-    align-items: flex-end;
-`;
-
-export const MaskTextInput = styled(TextInputMask)`
-    font-weight: 600;
-    font-size: 14px;
+const SectionTitle = styled(Text)`
     color: #ffffff;
-`
-
-const CardDetails1 = styled.View`
-    flex: 1;
-    align-items: flex-start;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
 `;
 
-const CardActions = styled.View`
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
+const FieldLabel = styled(Text)`
+    color: #8e93a1;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
 `;
 
-const Update = styled.TouchableOpacity`
-    background-color: #3d3d3d;
-    padding: 8px 16px;
+const FieldInput = styled.TextInput`
+    height: 44px;
+    color: #ffffff;
+    background-color: #1e1e1e;
     border-radius: 6px;
+    padding: 0 12px;
+    margin-bottom: 14px;
+`;
+
+const MaskFieldInput = styled(TextInputMask)`
+    height: 44px;
+    color: #ffffff;
+    background-color: #1e1e1e;
+    border-radius: 6px;
+    padding: 11px 12px;
+    margin-bottom: 14px;
+`;
+
+const SaveButton = styled.TouchableOpacity`
+    margin: 4px 16px 32px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    background-color: #ff6962;
+    border-radius: 6px;
+`;
+
+const Loading = styled.ActivityIndicator.attrs({
+    color: "#ffffff",
+    size: "small",
+})``;
+
+const PhotoPickerPanel = styled.View`
+    margin-top: auto;
+    padding: 24px 20px 28px;
+    background-color: #1e1e1e;
+    flex-direction: row;
+    justify-content: center;
+`;
+
+const PhotoOption = styled.TouchableOpacity`
+    margin: 0 8px;
+`;
+
+const PhotoOptionImage = styled.Image`
+    width: 84px;
+    height: 84px;
+    border-radius: 42px;
 `;

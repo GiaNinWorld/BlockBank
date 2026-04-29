@@ -11,6 +11,7 @@ import { UserContext } from './../../UseContext';
 
 import Text from '../components/Text';
 import transactions from './transactionsData';
+import { getProfilePhotoSource } from "../utils/profilePhotos";
 
 export default function HomeScreen() {
     LogBox.ignoreAllLogs();
@@ -91,7 +92,7 @@ export default function HomeScreen() {
     return (
         <Container>
             <Header>
-                <ProfilePhoto source={imageUrl} />
+                <ProfilePhoto source={getProfilePhotoSource(user.profilePhotoUrl)} />
                 <Welcome>
                     <Text heavy medium>
                         Bem-Vindo,

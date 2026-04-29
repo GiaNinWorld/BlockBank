@@ -1,45 +1,129 @@
 import React from "react";
-import { Container, Content, Strip, TextCVV, View, TextDate, ViewInformation, ImageItem, ImageItemOne, ImageItemTwo, Text} from './Styles';
+import {
+    Accent,
+    AccentSecondary,
+    BackHint,
+    BackTop,
+    BankName,
+    BottomRow,
+    BrandFallback,
+    BrandFallbackText,
+    BrandLogo,
+    Cardholder,
+    CardType,
+    Chip,
+    ChipLine,
+    ChipLineHorizontal,
+    Container,
+    Content,
+    CvvBox,
+    CvvText,
+    Expiry,
+    Label,
+    NumberText,
+    Signature,
+    SignatureRow,
+    TopRow,
+    Value,
+} from "./Styles";
+
+const getBrandLogo = (icon) => {
+    if (icon === "63" || icon === "65") {
+        return {
+            source: require("../../../assets/elo.png"),
+            variant: "elo",
+        };
+    }
+
+    if (icon === "55") {
+        return {
+            source: require("../../../assets/masterCard.png"),
+            variant: "master",
+        };
+    }
+
+    if (icon === "41" || icon === "42" || icon === "49") {
+        return {
+            source: require("../../../assets/visa.png"),
+            variant: "visa",
+        };
+    }
+
+    return null;
+};
+
+const formatCardNumber = (number) => {
+    return number || "0000 0000 0000 0000";
+};
+
+const CardBrand = ({ icon }) => {
+    const logo = getBrandLogo(icon);
+
+    if (logo) {
+        return <BrandLogo source={logo.source} variant={logo.variant} />;
+    }
+
+    return (
+        <BrandFallback>
+            <BrandFallbackText>BB</BrandFallbackText>
+        </BrandFallback>
+    );
+};
 
 const Card = ({ data, back, icon }) => {
+    const name = data.name?.trim() || "NOME DO TITULAR";
+    const validate = data.validate || "MM/AA";
+    const cvv = data.cvv || "000";
+
     return (
         <Container>
             <Content>
-                {back
-                    ? <Strip>
-                        <TextCVV> {data.cvv} </TextCVV>
-                      </Strip>
-                    :
-                    <ViewInformation>
-                        <View>
-                            <Text bold fontSize='18px' > {data.number} </Text>
-                            <Text fontSize='16px' > {data.name} </Text>
-                            <TextDate> {data.validate} </TextDate>
-                        </View>
-                        {icon === '63' && (
-                            <ImageItem source={require("../../../assets/elo.png")} />
-                        )}
-                        {icon === '65' && (
-                            <ImageItem source={require("../../../assets/elo.png")} />
-                        )}
-                        {icon === '55' && (
-                            <ImageItemTwo source={require("../../../assets/masterCard.png")} />
-                        )}
-                        {icon === '41' && (
-                            <ImageItemOne source={require("../../../assets/visa.png")} />
-                        )}
-                        {icon === '42' && (
-                            <ImageItemOne source={require("../../../assets/visa.png")} />
-                        )}
-                        {icon === '49' && (
-                            <ImageItemOne source={require("../../../assets/visa.png")} />
-                        )}
-                    </ViewInformation>
-                }
+                <Accent />
+                <AccentSecondary />
 
+                {back ? (
+                    <>
+                        <BackTop />
+                        <SignatureRow>
+                            <Signature />
+                            <CvvBox>
+                                <CvvText>{cvv}</CvvText>
+                            </CvvBox>
+                        </SignatureRow>
+                        <BackHint>Use o CVV apenas em compras seguras.</BackHint>
+                    </>
+                ) : (
+                    <>
+                        <TopRow>
+                            <Chip>
+                                <ChipLine />
+                                <ChipLineHorizontal />
+                            </Chip>
+                            <CardBrand icon={icon} />
+                        </TopRow>
+
+                        <NumberText>{formatCardNumber(data.number)}</NumberText>
+
+                        <BottomRow>
+                            <Cardholder>
+                                <Label>Titular</Label>
+                                <Value numberOfLines={1}>{name.toUpperCase()}</Value>
+                            </Cardholder>
+                            <Expiry>
+                                <Label>Validade</Label>
+                                <Value>{validate}</Value>
+                            </Expiry>
+                        </BottomRow>
+
+                        <TopRow>
+                            <BankName>BlockBank</BankName>
+                            <CardType>Debit</CardType>
+                        </TopRow>
+                    </>
+                )}
             </Content>
         </Container>
-    )
-}
+    );
+};
 
-export default Card
+export default Card;

@@ -6,6 +6,7 @@ import { TouchableOpacity, ScrollView, Modal, Pressable } from "react-native";
 
 import Text from "../components/Text";
 import NumberPad from "../components/NumberPad";
+import { getProfilePhotoSource } from "../utils/profilePhotos";
 
 import { UserContext } from './../../UseContext';
 
@@ -29,7 +30,6 @@ export default function SendRequestScreen() {
     const [userList, setUserList] = useState([]);
     const [query, setQuery] = useState();
 
-    let imageUrl;
     const db = firebase.firestore();
 
     useEffect(() => {
@@ -73,17 +73,7 @@ export default function SendRequestScreen() {
     const pickImage = (user) => {
         const selectedUserUid = user.uid;
         const selectedUserName = user.name;
-        let imageSource = null;
-
-        if (user.profilePhotoUrl === 19) {
-            imageSource = require("../../assets/profile.png");
-        } else if (user.profilePhotoUrl === 20) {
-            imageSource = require("../../assets/profileOne.png");
-        } else if (user.profilePhotoUrl === 21) {
-            imageSource = require("../../assets/profileTwo.png");
-        }
-
-        setProfilePhoto(imageSource);
+        setProfilePhoto(getProfilePhotoSource(user.profilePhotoUrl));
         setSelectedUserUid(selectedUserUid);
         setSelectedUserName(selectedUserName);
         setModalUsersVisible(false);
@@ -119,15 +109,7 @@ export default function SendRequestScreen() {
                     <ScrollView showsVerticalScrollIndicator={false}>
                         {filteredUsers.map((user) => (
                             <TouchableOpacity key={user.uid} onPress={() => pickImage(user)}>
-                                {user.profilePhotoUrl === 19 && (
-                                    <ImageItem source={require("../../assets/profile.png")} />
-                                )}
-                                {user.profilePhotoUrl === 20 && (
-                                    <ImageItem source={require("../../assets/profileOne.png")} />
-                                )}
-                                {user.profilePhotoUrl === 21 && (
-                                    <ImageItem source={require("../../assets/profileTwo.png")} />
-                                )}
+                                <ImageItem source={getProfilePhotoSource(user.profilePhotoUrl)} />
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
@@ -232,7 +214,7 @@ export default function SendRequestScreen() {
                     {profilePhoto ? (
                         <ProfilePhoto source={profilePhoto} style={{ aspectRatio: 1 }} />
                     ) : (
-                        <ProfilePhoto source={imageUrl ? imageUrl : require("../../assets/profile.png")} style={{ aspectRatio: 1 }} />
+                        <ProfilePhoto source={getProfilePhotoSource("profile")} style={{ aspectRatio: 1 }} />
                     )}
                 </ProfilePhotoContainer>
 

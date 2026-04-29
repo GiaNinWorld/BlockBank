@@ -8,12 +8,7 @@ import { FirebaseContext } from "../../FirebaseContext";
 import { UserContext } from "../../UseContext";
 
 import Text from "../components/Text";
-
-const exampleImages = [
-    require("../../assets/profile.png"),
-    require("../../assets/profileOne.png"),
-    require("../../assets/profileTwo.png"),
-];
+import { getProfilePhotoSource, PROFILE_PHOTOS } from "../utils/profilePhotos";
 
 export default function SignUpScreen({ navigation }) {
     const [username, setUsername] = useState();
@@ -66,7 +61,7 @@ export default function SignUpScreen({ navigation }) {
             });
     }; */
 
-    const pickImage = (image) => {
+    const pickImage = (photoKey) => {
         /* let imageUrl;//Variavel que armazena o caminho da photo
         switch (image) {//profilePhotoUrl
             case 19:
@@ -82,7 +77,7 @@ export default function SignUpScreen({ navigation }) {
                 imageUrl = ""; // URL padrão ou vazia caso o índice não corresponda a uma imagem específica
         }
         console.log(imageUrl); */
-        setProfilePhoto(image);
+        setProfilePhoto(photoKey);
         setModalVisible(false);
     };
 
@@ -97,9 +92,9 @@ export default function SignUpScreen({ navigation }) {
                 <Pressable style={{ flex: 1 }} onPress={() => setModalVisible(false)}>
                     <Pressable style={{ flex: 1 }} onPress={() => {}}>
                         <ImageSelectionContainer>
-                            {exampleImages.map((image, index) => (
-                                <TouchableOpacity key={index} onPress={() => pickImage(image)}>
-                                    <ImageItem source={image} />
+                            {PROFILE_PHOTOS.map((photo) => (
+                                <TouchableOpacity key={photo.key} onPress={() => pickImage(photo.key)}>
+                                    <ImageItem source={photo.source} />
                                 </TouchableOpacity>
                             ))}
                         </ImageSelectionContainer>
@@ -116,7 +111,7 @@ export default function SignUpScreen({ navigation }) {
     const signUp = async () => {
         setLoad(true);
 
-        const user = {username, email, password, profilePhoto}
+        const user = {username, email, password, profilePhoto: profilePhoto ?? "profile"}
 
         try {
             const createdUser = await firebase.createUser(user)
@@ -145,7 +140,7 @@ export default function SignUpScreen({ navigation }) {
 
                 <ProfilePhotoContainer onPress={addProfilePhoto}>
                     {profilePhoto ? (
-                        <ProfilePhoto source={profilePhoto} style={{ aspectRatio: 1 }} />
+                        <ProfilePhoto source={getProfilePhotoSource(profilePhoto)} style={{ aspectRatio: 1 }} />
                     ) : (
                         <DefaultProfilePhoto>
                             <AntDesign name="plus" size={24} color="#ffffff" />
