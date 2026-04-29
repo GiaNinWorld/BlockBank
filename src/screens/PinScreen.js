@@ -1,6 +1,6 @@
 // PinScreen.jsx
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled from "styled-components/native";
 import { Fontisto } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
 

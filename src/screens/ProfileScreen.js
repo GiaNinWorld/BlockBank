@@ -1,8 +1,7 @@
 import React, { useContext, useState } from "react";
-import { TouchableOpacity, TextInput, KeyboardAvoidingView } from "react-native";
-import styled from 'styled-components';
+import { TouchableOpacity, TextInput, KeyboardAvoidingView, Modal, Pressable } from "react-native";
+import styled from 'styled-components/native';
 import { StatusBar } from 'expo-status-bar';
-import Modal from "react-native-modal";
 import { TextInputMask } from 'react-native-masked-text';
 
 import Text from '../components/Text';
@@ -15,7 +14,7 @@ const exampleImages = [
     require("../../assets/profileTwo.png"),
 ];
 
-export default CardsScreen = () => {
+export default function ProfileScreen() {
     const [user, setUser] = useContext(UserContext);
     const firebase = useContext(FirebaseContext);
     const [profilePhoto, setProfilePhoto] = useState(user.profilePhotoUrl);
@@ -55,20 +54,22 @@ export default CardsScreen = () => {
     const renderImageSelection = () => {
         return (
             <Modal
-                isVisible={modalVisible}
-                onBackdropPress={() => setModalVisible(false)}
-                animationIn="slideInUp"
-                animationOut="slideOutDown"
-                backdropOpacity={0.5}
-                style={{ margin: 0 }}
+                visible={modalVisible}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setModalVisible(false)}
             >
-                <ImageSelectionContainer>
-                    {exampleImages.map((image, index) => (
-                        <TouchableOpacity key={index} onPress={() => pickImage(image)}>
-                            <ImageItem source={image} />
-                        </TouchableOpacity>
-                    ))}
-                </ImageSelectionContainer>
+                <Pressable style={{ flex: 1 }} onPress={() => setModalVisible(false)}>
+                    <Pressable style={{ flex: 1 }} onPress={() => {}}>
+                        <ImageSelectionContainer>
+                            {exampleImages.map((image, index) => (
+                                <TouchableOpacity key={index} onPress={() => pickImage(image)}>
+                                    <ImageItem source={image} />
+                                </TouchableOpacity>
+                            ))}
+                        </ImageSelectionContainer>
+                    </Pressable>
+                </Pressable>
             </Modal>
         );
     };
@@ -227,7 +228,7 @@ export default CardsScreen = () => {
             </KeyboardAvoidingView>
         </Container>
     );
-};
+}
 
 const Container = styled.SafeAreaView`
     flex: 1;

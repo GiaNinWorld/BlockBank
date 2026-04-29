@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import styled from "styled-components";
+import { Alert } from "react-native";
+import styled from "styled-components/native";
 import { StatusBar } from 'expo-status-bar';
 
 import Text from "../components/Text";
@@ -7,7 +8,7 @@ import Text from "../components/Text";
 import { FirebaseContext } from "../../FirebaseContext";
 import { UserContext } from './../../UseContext';
 
-export default SignInScreen = ({ navigation }) => {
+export default function SignInScreen({ navigation }) {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [loading, setLoad] = useState(false);
@@ -23,6 +24,10 @@ export default SignInScreen = ({ navigation }) => {
             const uid = firebase.getCurrentUser().uid;
 
             const userInfo = await firebase.getUserInfo(uid);
+
+            if (!userInfo) {
+                throw new Error("Perfil do usuario nao encontrado.");
+            }
 
             setUser({
                 username: userInfo.username,
@@ -41,7 +46,15 @@ export default SignInScreen = ({ navigation }) => {
 
             navigation.navigate('Tabs')
         } catch (error) {
-            alert(error.message);
+            if (firebase.getCurrentUser()) {
+                await firebase.logOut();
+            }
+
+            const message = error.code === "permission-denied" || error.message?.includes("Missing or insufficient permissions")
+                ? "Login autenticado, mas o app nao tem permissao para ler seu perfil no Firestore. Ajuste as regras da colecao users."
+                : error.message;
+
+            Alert.alert("Erro ao entrar", message);
         } finally {
             setLoad(false);
         }
@@ -176,7 +189,7 @@ export default SignInScreen = ({ navigation }) => {
             <StatusBar style='light' />
         </Container>
     );
-};
+}
 
 const Container = styled.View`
     flex: 1;

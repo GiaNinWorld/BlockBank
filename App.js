@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -13,7 +13,7 @@ import SendRequestScreen from './src/screens/SendRequestScreen';
 /* import MyCardsScreen from './src/screens/MyCardsScreen'; */
 import CardScreen from './src/screens/CardScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
-import { UserContext, UserProvider } from './UseContext'; // Importe o UserProvider
+import { UserProvider } from './UseContext'; // Importe o UserProvider
 import { FirebaseProvider } from './FirebaseContext';
 
 export default function App() {
@@ -67,8 +67,6 @@ export default function App() {
       </TabStack.Navigator>
     );
   };
-
-  const [user] = useContext(UserContext);
 
   const ProfileStackScreens = () => {
     return (

@@ -1,11 +1,11 @@
 import React from "react";
-import styled from 'styled-components';
+import styled from 'styled-components/native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 
 import Text from '../components/Text';
 
-export default MyCardsScreen = () => {
+export default function MyCardsScreen() {
     const navigation = useNavigation();
 
     const myCards = [
@@ -73,7 +73,7 @@ export default MyCardsScreen = () => {
             <StatusBar style='light' />
         </Container>
     );
-};
+}
 
 const Container = styled.SafeAreaView`
     flex: 1;

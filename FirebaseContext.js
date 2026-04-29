@@ -48,6 +48,7 @@ const Firebase = {
             return { ...user, profilePhotoUrl, uid };
         } catch (error) {
             console.log("Error @createUser: ", error.message);
+            throw error;
         }
     },
 
@@ -155,8 +156,10 @@ const Firebase = {
             if (user.exists){
                 return user.data()
             }
+            throw new Error("Perfil do usuario nao encontrado.");
         } catch (error) {
             console.log("Error @getUserInfo: ", error)
+            throw error;
         }
     },
 

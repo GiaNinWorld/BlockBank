@@ -1,9 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
-import styled from "styled-components";
+import styled from "styled-components/native";
 import { StatusBar } from 'expo-status-bar';
 import { MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity, ScrollView } from "react-native";
-import Modal from "react-native-modal";
+import { TouchableOpacity, ScrollView, Modal, Pressable } from "react-native";
 
 import Text from "../components/Text";
 import NumberPad from "../components/NumberPad";
@@ -19,7 +18,7 @@ import firebase from "firebase/compat/app";
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
-export default SendRequestScreen = () => {
+export default function SendRequestScreen() {
     const [user, setUser] = useContext(UserContext);
     const [usera, setUsera] = useContext(UserContext);
     const [amount, setAmount] = useState(0);
@@ -100,13 +99,13 @@ export default SendRequestScreen = () => {
     const renderImageSelection = () => {
         return (
             <Modal
-                isVisible={modalUsersVisible}
-                onBackdropPress={() => setModalUsersVisible(false)}
-                animationIn="slideInUp"
-                animationOut="slideOutDown"
-                backdropOpacity={0.5}
-                style={{ margin: 0 }}
+                visible={modalUsersVisible}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setModalUsersVisible(false)}
             >
+                <Pressable style={{ flex: 1 }} onPress={() => setModalUsersVisible(false)}>
+                    <Pressable style={{ flex: 1 }} onPress={() => {}}>
                  <AuthContainer>
                     <AuthTitle>Nome do usuário</AuthTitle>
                     <AuthField
@@ -133,6 +132,8 @@ export default SendRequestScreen = () => {
                         ))}
                     </ScrollView>
                 </ImageSelectionContainer>
+                    </Pressable>
+                </Pressable>
             </Modal>
         );
     };
@@ -259,7 +260,7 @@ export default SendRequestScreen = () => {
             <StatusBar style='light' />
         </Container>
     );
-};
+}
 
 const Container = styled.SafeAreaView`
   flex: 1;

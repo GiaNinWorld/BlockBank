@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components/native';
 
-export default TextStyle = ({ ...props }) => {
+export default function TextStyle({ ...props }) {
     return <Text {...props}> {props.children} </Text>;
-};
+}
 
 const Text = styled.Text`
     color: ${(props) => props.color ?? "#DBDBDB"};

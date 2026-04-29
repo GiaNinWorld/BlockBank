@@ -1,9 +1,8 @@
 import React, { useState, useContext } from "react";
-import { TouchableOpacity, KeyboardAvoidingView } from "react-native";
-import styled from "styled-components";
+import { Alert, TouchableOpacity, KeyboardAvoidingView, Modal, Pressable } from "react-native";
+import styled from "styled-components/native";
 import { StatusBar } from 'expo-status-bar';
 import { AntDesign } from "@expo/vector-icons";
-import Modal from "react-native-modal";
 
 import { FirebaseContext } from "../../FirebaseContext";
 import { UserContext } from "../../UseContext";
@@ -16,7 +15,7 @@ const exampleImages = [
     require("../../assets/profileTwo.png"),
 ];
 
-export default SignUpScreen = ({ navigation }) => {
+export default function SignUpScreen({ navigation }) {
     const [username, setUsername] = useState();
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
@@ -90,20 +89,22 @@ export default SignUpScreen = ({ navigation }) => {
     const renderImageSelection = () => {
         return (
             <Modal
-                isVisible={modalVisible}
-                onBackdropPress={() => setModalVisible(false)}
-                animationIn="slideInUp"
-                animationOut="slideOutDown"
-                backdropOpacity={0.5}
-                style={{ margin: 0 }}
+                visible={modalVisible}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setModalVisible(false)}
             >
-                <ImageSelectionContainer>
-                    {exampleImages.map((image, index) => (
-                        <TouchableOpacity key={index} onPress={() => pickImage(image)}>
-                            <ImageItem source={image} />
-                        </TouchableOpacity>
-                    ))}
-                </ImageSelectionContainer>
+                <Pressable style={{ flex: 1 }} onPress={() => setModalVisible(false)}>
+                    <Pressable style={{ flex: 1 }} onPress={() => {}}>
+                        <ImageSelectionContainer>
+                            {exampleImages.map((image, index) => (
+                                <TouchableOpacity key={index} onPress={() => pickImage(image)}>
+                                    <ImageItem source={image} />
+                                </TouchableOpacity>
+                            ))}
+                        </ImageSelectionContainer>
+                    </Pressable>
+                </Pressable>
             </Modal>
         );
     };
@@ -121,11 +122,15 @@ export default SignUpScreen = ({ navigation }) => {
             const createdUser = await firebase.createUser(user)
 
             setUser({ ...createdUser });
+            navigation.navigate("SignIn")
         } catch (error) {
             console.log("Error @signUp: ", error)
+            const message = error.code === "auth/email-already-in-use"
+                ? "Este email ja esta cadastrado. Use outro email ou faca login."
+                : error.message;
+            Alert.alert("Erro ao cadastrar", message);
         } finally {
             setLoad(false);
-            navigation.navigate("SignIn")
         }
     }
 
@@ -210,7 +215,7 @@ export default SignUpScreen = ({ navigation }) => {
             </KeyboardAvoidingView>
         </Container>
     );
-};
+}
 
 const Container = styled.View`
     flex: 1;

@@ -3,6 +3,7 @@ FirebaseConfig.js/
 .expo/
 dist/
 npm-debug.*
+expo-start*.log
 *.jks
 *.p8
 *.p12

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Dimensions, TouchableOpacity, LogBox } from "react-native";
-import styled from "styled-components";
+import styled from "styled-components/native";
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { LineChart } from "react-native-chart-kit";
@@ -12,7 +12,7 @@ import { UserContext } from './../../UseContext';
 import Text from '../components/Text';
 import transactions from './transactionsData';
 
-export default HomeScreen = () => {
+export default function HomeScreen() {
     LogBox.ignoreAllLogs();
     const [user, setUser] = useContext(UserContext);
     const firebase = useContext(FirebaseContext);
@@ -22,19 +22,19 @@ export default HomeScreen = () => {
 
     useEffect(() => {
         const fetchUserInfo = async () => {
-            const uid = firebase.getCurrentUser().uid;
-            const userInfo = await firebase.getUserInfo(uid);
-            
             try {
+                const currentUser = firebase.getCurrentUser();
+                if (!currentUser) {
+                    return;
+                }
+
+                const userInfo = await firebase.getUserInfo(currentUser.uid);
                 if (userInfo.saldo != user.saldo) {
                     setUser({ ...user, saldo: userInfo.saldo });
                 }
-                else {
-                    
-                }
             }
-            catch {
-                
+            catch (error) {
+                console.log("Error @refreshBalance: ", error.message);
             }
         };
         
@@ -175,7 +175,7 @@ export default HomeScreen = () => {
             <StatusBar style='light' />
         </Container>
     );
-};
+}
 
 const Container = styled.SafeAreaView`
     flex: 1;
