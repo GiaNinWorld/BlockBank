@@ -1,7 +1,9 @@
 export const getBrand = (numBrand) => {
-    if (numBrand && numBrand.length >= 2) { // Verifique o comprimento do número
-        const prefix = numBrand.substring(0, 2);
-        return prefix;
+    const digits = String(numBrand ?? "").replace(/\D/g, "");
+
+    if (digits.length >= 2) {
+        return digits.substring(0, 2);
     }
-    return ''; // Retorne um valor padrão, se necessário
-}
+
+    return "";
+};

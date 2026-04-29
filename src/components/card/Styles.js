@@ -119,6 +119,13 @@ export const Expiry = styled.View`
     margin-right: 12px;
 `;
 
+export const BrandSlot = styled.View`
+    width: 76px;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+`;
+
 export const BrandLogo = styled.Image`
     width: ${({ variant }) => variant === "master" ? "58px" : "70px"};
     height: ${({ variant }) => variant === "master" ? "42px" : "48px"};

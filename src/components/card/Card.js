@@ -25,6 +25,7 @@ import {
     SignatureRow,
     TopRow,
     Value,
+    BrandSlot,
 } from "./Styles";
 
 const getBrandLogo = (icon) => {
@@ -60,13 +61,19 @@ const CardBrand = ({ icon }) => {
     const logo = getBrandLogo(icon);
 
     if (logo) {
-        return <BrandLogo source={logo.source} variant={logo.variant} />;
+        return (
+            <BrandSlot>
+                <BrandLogo source={logo.source} variant={logo.variant} />
+            </BrandSlot>
+        );
     }
 
     return (
-        <BrandFallback>
-            <BrandFallbackText>BB</BrandFallbackText>
-        </BrandFallback>
+        <BrandSlot>
+            <BrandFallback>
+                <BrandFallbackText>BB</BrandFallbackText>
+            </BrandFallback>
+        </BrandSlot>
     );
 };
 

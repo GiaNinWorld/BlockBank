@@ -151,7 +151,7 @@ const CardScreen = () => {
                                 setData({...data, cvv: text})
                                 animatedCard(true)
                             }}
-                            icon = {<Ionicons name="ios-lock-closed" size={20} color="#3099D9" />}
+                            icon = {<Ionicons name="lock-closed" size={20} color="#3099D9" />}
                         />
                     </View>
                     
