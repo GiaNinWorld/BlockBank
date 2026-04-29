@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { Animated } from "react-native";
+import React, { useContext, useRef, useState } from "react";
+import { Animated, StyleSheet, View as RNView } from "react-native";
 import { getBrand } from "../components/input/Brand";
 import Text from '../components/Text';
 import Card from '../components/card/Card';
@@ -15,7 +15,7 @@ import { UserContext } from './../../UseContext';
 
 const CardScreen = () => {
     const [user, setUser] = useContext(UserContext);
-    const [widthAnimated, setWidthAnimated] = useState(new Animated.Value(330));
+    const flipAnimation = useRef(new Animated.Value(0)).current;
     const [backView, setBackView] = useState(false);
     const [icon, setIcon] = useState('0');
     
@@ -31,48 +31,39 @@ const CardScreen = () => {
         cvv: ''
     });
 
-
     const animatedCard = (back) => {
-        if(back && !backView){
-            Animated.timing(widthAnimated, {
-                toValue: 0,
-                duration: 400,
-                useNativeDriver: false
-            }).start()
-
-            setTimeout(() => {
-                Animated.timing(widthAnimated, {
-                    toValue: 330,
-                    duration: 400,
-                    useNativeDriver: false
-                }).start()
-            }, 400)
-            setTimeout(() => {
-                setBackView(true);
-            }, 150)
+        if (back === backView) {
+            return;
         }
 
-        if(!back && backView){
-            Animated.timing(widthAnimated, {
-                toValue: 0,
-                duration: 400,
-                useNativeDriver: false
-            }).start()
+        setBackView(back);
 
-            setTimeout(() => {
-                Animated.timing(widthAnimated, {
-                    toValue: 330,
-                    duration: 400,
-                    useNativeDriver: false
-                }).start()
-            }, 400)
+        Animated.timing(flipAnimation, {
+            toValue: back ? 1 : 0,
+            duration: 460,
+            useNativeDriver: true,
+        }).start();
+    };
 
-            setTimeout(() => {
-                setBackView(false);
-            }, 450)
-            
-        }
-    }
+    const frontRotate = flipAnimation.interpolate({
+        inputRange: [0, 1],
+        outputRange: ["0deg", "180deg"],
+    });
+
+    const backRotate = flipAnimation.interpolate({
+        inputRange: [0, 1],
+        outputRange: ["180deg", "360deg"],
+    });
+
+    const frontOpacity = flipAnimation.interpolate({
+        inputRange: [0, 0.49, 0.5, 1],
+        outputRange: [1, 1, 0, 0],
+    });
+
+    const backOpacity = flipAnimation.interpolate({
+        inputRange: [0, 0.49, 0.5, 1],
+        outputRange: [0, 0, 1, 1],
+    });
 
     /* const save = async () => {
         try {
@@ -90,9 +81,31 @@ const CardScreen = () => {
                 <Text center heavy title color="#FF6962" margin="16%">BlockCard</Text>
 
                 <Content>
-                    <Animated.View style={{width: widthAnimated}} >
-                        <Card data={data}  icon={icon} back={backView} />
-                    </Animated.View>
+                    <RNView style={styles.flipArea}>
+                        <Animated.View
+                            style={[
+                                styles.cardFace,
+                                {
+                                    opacity: frontOpacity,
+                                    transform: [{ perspective: 1000 }, { rotateY: frontRotate }],
+                                },
+                            ]}
+                        >
+                            <Card data={data} icon={icon} back={false} />
+                        </Animated.View>
+
+                        <Animated.View
+                            style={[
+                                styles.cardFace,
+                                {
+                                    opacity: backOpacity,
+                                    transform: [{ perspective: 1000 }, { rotateY: backRotate }],
+                                },
+                            ]}
+                        >
+                            <Card data={data} icon={icon} back />
+                        </Animated.View>
+                    </RNView>
                    
                     <Input 
                         placeholder = "Nome"
@@ -166,5 +179,17 @@ const CardScreen = () => {
         </ScrollView>
     )
 }
+
+const styles = StyleSheet.create({
+    flipArea: {
+        width: "100%",
+        height: 224,
+    },
+    cardFace: {
+        position: "absolute",
+        width: "100%",
+        backfaceVisibility: "hidden",
+    },
+});
 
 export default CardScreen
