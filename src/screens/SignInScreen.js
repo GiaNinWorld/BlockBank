@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Alert } from "react-native";
+﻿import React, { useState, useContext } from "react";
+import { Alert, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import styled from "styled-components/native";
 import { StatusBar } from 'expo-status-bar';
 
@@ -41,7 +41,6 @@ export default function SignInScreen({ navigation }) {
                 endereco: userInfo.endereco,
                 profilePhotoUrl: userInfo.profilePhotoUrl,
                 saldo: userInfo.saldo,
-                /* theme: userInfo.theme */
             })
 
             navigation.navigate('Tabs')
@@ -60,131 +59,71 @@ export default function SignInScreen({ navigation }) {
         }
     }
 
-    /*  const handleSignIn = async () => {
-         setLoad(true)
-         signInWithEmailAndPassword(auth, email, password)
-             .then(async (userCredential) => {
-                 console.log('Usuário logado');
-                 const user = userCredential.user;
-                 console.log(user);
- 
-                 // Obtém o documento do usuário atualmente logado no Firestore
-                 const db = getFirestore();
-                 const userDocRef = doc(db, 'users', user.uid);
-                 const userDocSnapshot = await getDoc(userDocRef);
- 
-                 if (userDocSnapshot.exists()) {
-                     const userData = userDocSnapshot.data();
-                     const nome = userData.nome;
-                     const cpf = userData.cpf;
-                     const nrConta = userData.numeroConta;
-                     const nacionalidade = userData.nacionalidade;
-                     const sexo = userData.sexo;
-                     const profilePhoto = userData.profilePhotoUrl;
-                     const endereco = userData.endereco;
-                     const qnt = userData.quantidadeCartoes;
-                     const saldo = userData.saldo;
-                     // console.log('Username:', username); USERNAME
-                     const params = {
-                         user: {
-                             uid: user.uid,
-                             nome: nome,
-                             profile: profilePhoto,
-                             cpf: cpf,
-                             nrConta: nrConta,
-                             nacionalidade: nacionalidade,
-                             sexo: sexo,
-                             endereco: endereco,
-                             quantidadeCartoes: qnt,
-                             saldo: saldo,
-                             // outras informações do usuário
-                         }
-                     };
- 
-                     setUser(params.user); // Atualize as informações do usuário no contexto
-                     setLoad(false)
-                     navigation.navigate('Tabs');
-                 } else {
-                     console.log('Nome de usuário não encontrado');
-                 }
-             })
-             .catch(error => {
-                 console.log(error);
-                 Alert.alert(error.message);
-             });
-     }; */
-
-    /* useEffect(() => {
-        setTimeout(async () => {
-            const user = firebase.getCurrentUser();
-
-            if (user) {
-                const userInfo = await firebase.getUserInfo(user.uid)
-
-                setUser({
-                    email: userInfo.email,
-                    uid: user.uid,
-                    username: userInfo.username,
-                    password: userInfo.password,
-                    profilePhotoId: userInfo.profilePhotoUrl
-                })
-            }
-        })
-    }, []) */
-
     return (
         <Container>
-            <Main>
-                <Text center heavy title color="#FF6962">
-                    Bem-Vindo!
-                </Text>
-            </Main>
-
-            <Auth>
-                <AuthContainer>
-                    <AuthTitle>Endereço de Email</AuthTitle>
-                    <AuthField
-                        autoCapitalize="none"
-                        autoCompleteType="email"
-                        autoCorrect={false}
-                        keyboardType={"email-address"}
-                        onChangeText={email => setEmail(email.trim())}
-                        value={email}
-                    />
-                </AuthContainer>
-                <AuthContainer>
-                    <AuthTitle>Endereço de Senha</AuthTitle>
-                    <AuthField
-                        autoCapitalize="none"
-                        autoCompleteType="password"
-                        autoCorrect={false}
-                        secureTextEntry={true}
-                        onChangeText={password => setPassword(password.trim())}
-                        value={password}
-                    />
-                </AuthContainer>
-            </Auth>
-
-            <SignInContainer disabled={loading} onPress={signIn}>
-                {loading ? (
-                    <Loading />
-                ) : (
-                    <Text bold center color="#ffffff">
-                        Entrar
-                    </Text>
-                )}
-            </SignInContainer>
-
-            <SignUp onPress={() => navigation.navigate("SignUp")}>
-                <Text small center color="#8e93a1">
-                    Novo aqui? <Text bold color="#FF6962">Registre-se</Text>
-                </Text>
-            </SignUp>
-
+            {/* Decoracao absoluta — fica fora do scroll para nao ser empurrada */}
             <HeaderGraphic>
                 <RightCircle />
                 <LeftCircle />
             </HeaderGraphic>
+
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <ScrollView
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                >
+                    <Main>
+                        <Text center heavy title color="#FF6962">
+                            Bem-Vindo!
+                        </Text>
+                    </Main>
+
+                    <Auth>
+                        <AuthContainer>
+                            <AuthTitle>Endereco de Email</AuthTitle>
+                            <AuthField
+                                autoCapitalize="none"
+                                autoCompleteType="email"
+                                autoCorrect={false}
+                                keyboardType={"email-address"}
+                                onChangeText={email => setEmail(email.trim())}
+                                value={email}
+                            />
+                        </AuthContainer>
+                        <AuthContainer>
+                            <AuthTitle>Endereco de Senha</AuthTitle>
+                            <AuthField
+                                autoCapitalize="none"
+                                autoCompleteType="password"
+                                autoCorrect={false}
+                                secureTextEntry={true}
+                                onChangeText={password => setPassword(password.trim())}
+                                value={password}
+                            />
+                        </AuthContainer>
+                    </Auth>
+
+                    <SignInContainer disabled={loading} onPress={signIn}>
+                        {loading ? (
+                            <Loading />
+                        ) : (
+                            <Text bold center color="#ffffff">
+                                Entrar
+                            </Text>
+                        )}
+                    </SignInContainer>
+
+                    <SignUp onPress={() => navigation.navigate("SignUp")}>
+                        <Text small center color="#8e93a1">
+                            Novo aqui? <Text bold color="#FF6962">Registre-se</Text>
+                        </Text>
+                    </SignUp>
+                </ScrollView>
+            </KeyboardAvoidingView>
 
             <StatusBar style='light' />
         </Container>
@@ -234,11 +173,10 @@ const SignInContainer = styled.TouchableOpacity`
 const Loading = styled.ActivityIndicator.attrs(props => ({
     color: "#ffffff",
     size: "small",
-}))``;
+}))` `;
 
 const SignUp = styled.TouchableOpacity`
     margin-top: 16px;
-
 `;
 
 const HeaderGraphic = styled.View`

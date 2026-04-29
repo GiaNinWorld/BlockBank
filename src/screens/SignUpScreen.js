@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { Alert, TouchableOpacity, KeyboardAvoidingView, Modal, Pressable } from "react-native";
+﻿import React, { useState, useContext } from "react";
+import { Alert, TouchableOpacity, KeyboardAvoidingView, ScrollView, Platform, Modal, Pressable } from "react-native";
 import styled from "styled-components/native";
 import { StatusBar } from 'expo-status-bar';
 import { AntDesign } from "@expo/vector-icons";
@@ -20,63 +20,7 @@ export default function SignUpScreen({ navigation }) {
     const firebase = useContext(FirebaseContext)
     const [_, setUser] = useContext(UserContext)
 
-    /* const handleCreateAccount = () => {
-        setLoad(true)
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                console.log('Conta Criada')
-                const user = userCredential.user;
-                console.log(user)
-                saveAdditionalUserInfo(user.uid); // Salva informações adicionais do usuário
-                setLoad(false)
-                navigation.navigate('SignIn')
-            })
-            .catch(error => {
-                console.log(error)
-                Alert.alert(error.message)
-            })
-    }
- */
-    /* const saveAdditionalUserInfo = (userId) => {
-        const db = getFirestore(app);
-        const userRef = doc(db, 'users', userId);
-
-        setDoc(userRef, {
-            username,
-            saldo: 0,
-            profilePhotoUrl: profilePhoto, // Salva a URL da imagem no campo profilePhotoUrl
-            cpf: "",
-            numeroConta: "",
-            nacionalidade: "",
-            sexo: "",
-            endereco: "",
-            cpf: "",
-        }, { merge: true })
-            .then(() => {
-                console.log('Informações adicionais do usuário salvas');
-            })
-            .catch(error => {
-                console.log(error);
-                Alert.alert(error.message);
-            });
-    }; */
-
     const pickImage = (photoKey) => {
-        /* let imageUrl;//Variavel que armazena o caminho da photo
-        switch (image) {//profilePhotoUrl
-            case 19:
-                imageUrl = "../../assets/profile.png";
-                break;
-            case 20:
-                imageUrl = "../../assets/profileOne.png";
-                break;
-            case 21:
-                imageUrl = "../../assets/profileTwo.png";
-                break;
-            default:
-                imageUrl = ""; // URL padrão ou vazia caso o índice não corresponda a uma imagem específica
-        }
-        console.log(imageUrl); */
         setProfilePhoto(photoKey);
         setModalVisible(false);
     };
@@ -111,7 +55,7 @@ export default function SignUpScreen({ navigation }) {
     const signUp = async () => {
         setLoad(true);
 
-        const user = {username, email, password, profilePhoto: profilePhoto ?? "profile"}
+        const user = { username, email, password, profilePhoto: profilePhoto ?? "profile" }
 
         try {
             const createdUser = await firebase.createUser(user)
@@ -131,83 +75,91 @@ export default function SignUpScreen({ navigation }) {
 
     return (
         <Container>
-            <KeyboardAvoidingView behavior="position" >
-                <Main>
-                    <Text center heavy title color="#FF6962">
-                        Registre-se para começar.
-                    </Text>
-                </Main>
+            {/* Decoracao absoluta — fica fora do scroll para nao ser empurrada */}
+            <HeaderGraphic>
+                <RightCircle />
+                <LeftCircle />
+            </HeaderGraphic>
 
-                <ProfilePhotoContainer onPress={addProfilePhoto}>
-                    {profilePhoto ? (
-                        <ProfilePhoto source={getProfilePhotoSource(profilePhoto)} style={{ aspectRatio: 1 }} />
-                    ) : (
-                        <DefaultProfilePhoto>
-                            <AntDesign name="plus" size={24} color="#ffffff" />
-                        </DefaultProfilePhoto>
-                    )}
-                </ProfilePhotoContainer>
-
-                {renderImageSelection()}
-                
-                <Auth>
-                    <AuthContainer>
-                        <AuthTitle>Nome Completo</AuthTitle>
-                        <AuthField
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            onChangeText={(username) => { setUsername(username.trim()) }}
-                            value={username}
-                        />
-                    </AuthContainer>
-                    <AuthContainer>
-                        <AuthTitle>Endereço de Email</AuthTitle>
-                        <AuthField
-                            autoCapitalize="none"
-                            autoCompleteType="email"
-                            autoCorrect={false}
-                            keyboardType={"email-address"}
-                            onChangeText={(email) => { setEmail(email.trim()) }}
-                            value={email}
-                        />
-                    </AuthContainer>
-                    <AuthContainer>
-                        <AuthTitle>Endereço de Senha</AuthTitle>
-                        <AuthField
-                            autoCapitalize="none"
-                            autoCompleteType="password"
-                            autoCorrect={false}
-                            onChangeText={(pass) => { setPassword(pass.trim()) }}
-                            value={password}
-                        />
-                    </AuthContainer>
-                    
-                </Auth>
-                
-
-                <SignUpContainer disabled={loading} onPress={signUp}>
-                    {loading ? (
-                        <Loading />
-                    ) : (
-                        <Text bold center color="#ffffff">
-                            Registrar-se
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <ScrollView
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                >
+                    <Main>
+                        <Text center heavy title color="#FF6962">
+                            Registre-se para comecar.
                         </Text>
-                    )}
-                </SignUpContainer>
+                    </Main>
 
-                <SignIn onPress={() => navigation.navigate("SignIn")}>
-                    <Text small center color="#8e93a1">
-                        Já tem uma conta? <Text bold color="#FF6962">Entrar</Text>
-                    </Text>
-                </SignIn>
+                    <ProfilePhotoContainer onPress={addProfilePhoto}>
+                        {profilePhoto ? (
+                            <ProfilePhoto source={getProfilePhotoSource(profilePhoto)} style={{ aspectRatio: 1 }} />
+                        ) : (
+                            <DefaultProfilePhoto>
+                                <AntDesign name="plus" size={24} color="#ffffff" />
+                            </DefaultProfilePhoto>
+                        )}
+                    </ProfilePhotoContainer>
 
-                <HeaderGraphic>
-                    <RightCircle />
-                    <LeftCircle />
-                </HeaderGraphic>
+                    {renderImageSelection()}
 
-                <StatusBar style='light' />
+                    <Auth>
+                        <AuthContainer>
+                            <AuthTitle>Nome Completo</AuthTitle>
+                            <AuthField
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                onChangeText={(username) => { setUsername(username.trim()) }}
+                                value={username}
+                            />
+                        </AuthContainer>
+                        <AuthContainer>
+                            <AuthTitle>Endereco de Email</AuthTitle>
+                            <AuthField
+                                autoCapitalize="none"
+                                autoCompleteType="email"
+                                autoCorrect={false}
+                                keyboardType={"email-address"}
+                                onChangeText={(email) => { setEmail(email.trim()) }}
+                                value={email}
+                            />
+                        </AuthContainer>
+                        <AuthContainer>
+                            <AuthTitle>Endereco de Senha</AuthTitle>
+                            <AuthField
+                                autoCapitalize="none"
+                                autoCompleteType="password"
+                                autoCorrect={false}
+                                onChangeText={(pass) => { setPassword(pass.trim()) }}
+                                value={password}
+                            />
+                        </AuthContainer>
+                    </Auth>
+
+                    <SignUpContainer disabled={loading} onPress={signUp}>
+                        {loading ? (
+                            <Loading />
+                        ) : (
+                            <Text bold center color="#ffffff">
+                                Registrar-se
+                            </Text>
+                        )}
+                    </SignUpContainer>
+
+                    <SignIn onPress={() => navigation.navigate("SignIn")}>
+                        <Text small center color="#8e93a1">
+                            Ja tem uma conta? <Text bold color="#FF6962">Entrar</Text>
+                        </Text>
+                    </SignIn>
+                </ScrollView>
             </KeyboardAvoidingView>
+
+            <StatusBar style='light' />
         </Container>
     );
 }
@@ -255,7 +207,6 @@ const ImageItem = styled.Image`
     height: 200px;
     margin-right: 8px;
     margin-bottom: 8px;
-
 `;
 
 const Auth = styled.View`
@@ -292,11 +243,10 @@ const SignUpContainer = styled.TouchableOpacity`
 const Loading = styled.ActivityIndicator.attrs(props => ({
     color: "#ffffff",
     size: "small",
-}))``;
+}))` `;
 
 const SignIn = styled.TouchableOpacity`
     margin-top: 16px;
-
 `;
 
 const HeaderGraphic = styled.View`

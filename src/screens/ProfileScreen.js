@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { Alert, Modal, Pressable, ScrollView, TouchableOpacity } from "react-native";
+﻿import React, { useContext, useState } from "react";
+import { Alert, Modal, Pressable, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import styled from "styled-components/native";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -85,85 +85,90 @@ export default function ProfileScreen() {
 
     return (
         <Container>
-            <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-                <Header>
-                    <Text heavy title color="#FF6962">
-                        Perfil
-                    </Text>
-                    <Text color="#8e93a1">{user.email}</Text>
-                </Header>
-
-                <PhotoButton onPress={() => setModalVisible(true)}>
-                    <ProfilePhoto source={getProfilePhotoSource(profilePhotoKey)} />
-                    <PhotoEditBadge>
-                        <MaterialIcons name="edit" size={16} color="#ffffff" />
-                    </PhotoEditBadge>
-                </PhotoButton>
-
-                <FormSection>
-                    <SectionTitle>Dados pessoais</SectionTitle>
-                    <FieldLabel>Nome completo</FieldLabel>
-                    <FieldInput
-                        value={form.username}
-                        onChangeText={(value) => updateField("username", value)}
-                        autoCapitalize="words"
-                    />
-
-                    <FieldLabel>CPF</FieldLabel>
-                    <MaskFieldInput
-                        type="cpf"
-                        value={form.cpf}
-                        onChangeText={(value) => updateField("cpf", value)}
-                        keyboardType="number-pad"
-                    />
-
-                    <FieldLabel>Telefone</FieldLabel>
-                    <MaskFieldInput
-                        type="cel-phone"
-                        value={form.nrConta}
-                        options={{
-                            maskType: "BRL",
-                            withDDD: true,
-                            dddMask: "(99) ",
-                        }}
-                        onChangeText={(value) => updateField("nrConta", value)}
-                        keyboardType="phone-pad"
-                    />
-                </FormSection>
-
-                <FormSection>
-                    <SectionTitle>Endereco e documento</SectionTitle>
-                    <FieldLabel>Nacionalidade</FieldLabel>
-                    <FieldInput
-                        value={form.nacionalidade}
-                        onChangeText={(value) => updateField("nacionalidade", value)}
-                        autoCapitalize="words"
-                    />
-
-                    <FieldLabel>Sexo</FieldLabel>
-                    <FieldInput
-                        value={form.sexo}
-                        onChangeText={(value) => updateField("sexo", value)}
-                    />
-
-                    <FieldLabel>Endereco</FieldLabel>
-                    <FieldInput
-                        value={form.endereco}
-                        onChangeText={(value) => updateField("endereco", value)}
-                        autoCapitalize="sentences"
-                    />
-                </FormSection>
-
-                <SaveButton disabled={saving} onPress={save}>
-                    {saving ? (
-                        <Loading />
-                    ) : (
-                        <Text bold center color="#ffffff">
-                            Salvar
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                    <Header>
+                        <Text heavy title color="#FF6962">
+                            Perfil
                         </Text>
-                    )}
-                </SaveButton>
-            </ScrollView>
+                        <Text color="#8e93a1">{user.email}</Text>
+                    </Header>
+
+                    <PhotoButton onPress={() => setModalVisible(true)}>
+                        <ProfilePhoto source={getProfilePhotoSource(profilePhotoKey)} />
+                        <PhotoEditBadge>
+                            <MaterialIcons name="edit" size={16} color="#ffffff" />
+                        </PhotoEditBadge>
+                    </PhotoButton>
+
+                    <FormSection>
+                        <SectionTitle>Dados pessoais</SectionTitle>
+                        <FieldLabel>Nome completo</FieldLabel>
+                        <FieldInput
+                            value={form.username}
+                            onChangeText={(value) => updateField("username", value)}
+                            autoCapitalize="words"
+                        />
+
+                        <FieldLabel>CPF</FieldLabel>
+                        <MaskFieldInput
+                            type="cpf"
+                            value={form.cpf}
+                            onChangeText={(value) => updateField("cpf", value)}
+                            keyboardType="number-pad"
+                        />
+
+                        <FieldLabel>Telefone</FieldLabel>
+                        <MaskFieldInput
+                            type="cel-phone"
+                            value={form.nrConta}
+                            options={{
+                                maskType: "BRL",
+                                withDDD: true,
+                                dddMask: "(99) ",
+                            }}
+                            onChangeText={(value) => updateField("nrConta", value)}
+                            keyboardType="phone-pad"
+                        />
+                    </FormSection>
+
+                    <FormSection>
+                        <SectionTitle>Endereco e documento</SectionTitle>
+                        <FieldLabel>Nacionalidade</FieldLabel>
+                        <FieldInput
+                            value={form.nacionalidade}
+                            onChangeText={(value) => updateField("nacionalidade", value)}
+                            autoCapitalize="words"
+                        />
+
+                        <FieldLabel>Sexo</FieldLabel>
+                        <FieldInput
+                            value={form.sexo}
+                            onChangeText={(value) => updateField("sexo", value)}
+                        />
+
+                        <FieldLabel>Endereco</FieldLabel>
+                        <FieldInput
+                            value={form.endereco}
+                            onChangeText={(value) => updateField("endereco", value)}
+                            autoCapitalize="sentences"
+                        />
+                    </FormSection>
+
+                    <SaveButton disabled={saving} onPress={save}>
+                        {saving ? (
+                            <Loading />
+                        ) : (
+                            <Text bold center color="#ffffff">
+                                Salvar
+                            </Text>
+                        )}
+                    </SaveButton>
+                </ScrollView>
+            </KeyboardAvoidingView>
 
             <Modal
                 visible={modalVisible}
@@ -275,7 +280,7 @@ const SaveButton = styled.TouchableOpacity`
 const Loading = styled.ActivityIndicator.attrs({
     color: "#ffffff",
     size: "small",
-})``;
+})` `;
 
 const PhotoPickerPanel = styled.View`
     margin-top: auto;

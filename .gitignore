@@ -1,5 +1,4 @@
-node_modules/
-FirebaseConfig.js/
+﻿node_modules/
 .expo/
 dist/
 npm-debug.*
@@ -11,6 +10,9 @@ expo-start*.log
 *.mobileprovision
 *.orig.*
 web-build/
+
+# Secrets — nunca versionar
+.env
 
 # macOS
 .DS_Store
