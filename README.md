@@ -118,15 +118,3 @@ Crie um arquivo `.env` na raiz do projeto (nunca versione este arquivo):
 | `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET` | Bucket do Firebase Storage |
 | `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Sender ID para notificações |
 | `EXPO_PUBLIC_FIREBASE_APP_ID` | App ID do Firebase |
-
-Consulte o `.env.example` para o template completo. Todas as variáveis são injetadas em tempo de build pelo Expo SDK 49+ via prefixo `EXPO_PUBLIC_`.
-
-## Roadmap
-
-- Sistema de gamificação: pontos, conquistas e recompensas por uso do app.
-- Módulo de investimentos: simulador e carteira básica para iniciantes.
-- Cotação do dólar via API pública (substituir o endpoint local de desenvolvimento).
-- Notificações push ao receber um Pix (`expo-notifications`).
-- Extrato completo com filtro por período e exportação PDF.
-- Suporte a múltiplos cartões com bandeiras distintas por documento.
-- Testes unitários e de integração (Jest + React Native Testing Library).
